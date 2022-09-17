@@ -3,11 +3,13 @@ package br.com.cavalcanti.cm.modelo;
 import java.util.ArrayList;
 import java.util.List;
 
+import br.com.cavalcanti.cm.excessao.ExplosaoException;
+
 public class Campo {
 
-	private boolean aberto= false;
-	private boolean marcado= false;
-	private boolean minado= false;
+	private boolean aberto = false;
+	private boolean marcado = false;
+	private boolean minado = false;
 	private final int linha;
 	private final int coluna;
 
@@ -36,7 +38,34 @@ public class Campo {
 		} else {
 			return false;
 		}
-
 	}
 
+	void alternarMarcacao() {
+		if (!aberto) {
+			marcado = !marcado;
+		}
+	}
+
+	boolean abrir() {
+		if (!aberto && !marcado) {
+			aberto = true;
+
+			if (minado) {
+				throw new ExplosaoException();
+			}
+
+			if (vizinhancaSegura()) {
+				vizinhos.forEach(v -> v.abrir());
+			}
+
+			return true;
+		}
+
+		return false;
+	}
+
+	boolean vizinhancaSegura() {
+		return vizinhos.stream().noneMatch(v -> v.minado);
+
+	}
 }
